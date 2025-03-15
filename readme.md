@@ -5,10 +5,11 @@ Este repositorio contiene la solución del challenge técnico de data para Globa
 ## Contenido del Repositorio
 
 - **src**: Código principal de la solución.
-- **Data/input**: Conjunto de datos utilizados para el challenge.
-- **Data/output**: Conjunto de datos generados en el challenge.
-- **Data/temp**: area temporal de trabajo cuando es requerida.
+- **data/input**: Conjunto de datos utilizados para el challenge.
+- **data/output**: Conjunto de datos generados en el challenge.
+- **data/temp**: area temporal de trabajo cuando es requerida.
 - **docs**: Instrucciones y detalles sobre el challenge.
+- **utils**: Carpeta donde se almacenaran las funciones genericas del proyecto.
 
 ## Instrucciones
 
