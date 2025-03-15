@@ -5,6 +5,7 @@ Este repositorio contiene la solución del challenge técnico de data para Globa
 ## Contenido del Repositorio
 
 - **src**: Código principal de la solución.
+- **src/sql**: Carpeta contenedora de los ddls y dmls de la solución.
 - **data/input**: Conjunto de datos utilizados para el challenge.
 - **data/output**: Conjunto de datos generados en el challenge.
 - **data/temp**: area temporal de trabajo cuando es requerida.
