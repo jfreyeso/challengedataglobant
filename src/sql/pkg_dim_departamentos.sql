@@ -53,7 +53,7 @@ CREATE OR REPLACE PACKAGE BODY pkg_dim_departamentos AS
             UPDATE dim_departamentos
             SET num_departamento = p_num_departamento,
                 str_nombre_departamento = p_nombre_departamento
-            WHERE DepartamentoID = p_departamento_id;
+            WHERE num_departamento = p_departamento_id;
 
             IF SQL%ROWCOUNT = 0 THEN
                 RAISE_APPLICATION_ERROR(-20002, 'El departamento con ID ' || p_departamento_id || ' no existe.');
@@ -71,7 +71,7 @@ CREATE OR REPLACE PACKAGE BODY pkg_dim_departamentos AS
     BEGIN
         BEGIN
             DELETE FROM dim_departamentos
-            WHERE DepartamentoID = p_departamento_id;
+            WHERE num_departamento = p_departamento_id;
 
             IF SQL%ROWCOUNT = 0 THEN
                 RAISE_APPLICATION_ERROR(-20004, 'El departamento con ID ' || p_departamento_id || ' no existe.');

@@ -41,7 +41,7 @@ CREATE OR REPLACE PACKAGE BODY pkg_fct_empleados_contratados AS
         p_id_trabajo IN NUMBER
     ) IS
     BEGIN
-        INSERT INTO fct_empleados_contratados (id_emp_contatado_sk, str_nombre_empleado, dtm_fecha_contratacion, str_status, id_departamento_sk, id_trabajo_sk)
+        INSERT INTO fct_empleados_contratados (num_id_empleado, str_nombre_empleado, dtm_fecha_contratacion, str_status, id_departamento_sk, num_id_trabajo_sk)
         VALUES (p_id, p_nombre, p_fecha_contratacion, 'activo', p_id_departamento, p_id_trabajo);
     EXCEPTION
         WHEN NO_DATA_FOUND THEN
@@ -60,13 +60,13 @@ CREATE OR REPLACE PACKAGE BODY pkg_fct_empleados_contratados AS
     ) IS
     BEGIN
         MERGE INTO fct_empleados_contratados e
-        USING (SELECT p_id AS id_emp_contatado_sk, p_nombre AS str_nombre_empleado, p_fecha_contratacion AS dtm_fecha_contratacion, p_id_departamento AS id_departamento_sk, p_id_trabajo AS id_trabajo_sk FROM dual) src
-        ON (e.id_emp_contatado_sk = src.id_emp_contatado_sk)
+        USING (SELECT p_id AS num_id_empleado, p_nombre AS str_nombre_empleado, p_fecha_contratacion AS dtm_fecha_contratacion, p_id_departamento AS id_departamento_sk, p_id_trabajo AS num_id_trabajo_sk FROM dual) src
+        ON (e.num_id_empleado = src.num_id_empleado)
         WHEN MATCHED THEN
-            UPDATE SET e.str_nombre_empleado = src.str_nombre_empleado, e.dtm_fecha_contratacion = src.dtm_fecha_contratacion, e.id_departamento_sk = src.id_departamento_sk, e.id_trabajo_sk = src.id_trabajo_sk
+            UPDATE SET e.str_nombre_empleado = src.str_nombre_empleado, e.dtm_fecha_contratacion = src.dtm_fecha_contratacion, e.id_departamento_sk = src.id_departamento_sk, e.num_id_trabajo_sk = src.num_id_trabajo_sk
         WHEN NOT MATCHED THEN
-            INSERT (id_emp_contatado_sk, str_nombre_empleado, dtm_fecha_contratacion, id_departamento_sk, id_trabajo_sk)
-            VALUES (src.id_emp_contatado_sk, src.str_nombre_empleado, src.dtm_fecha_contratacion, src.id_departamento_sk, src.id_trabajo_sk);
+            INSERT (num_id_empleado, str_nombre_empleado, dtm_fecha_contratacion, id_departamento_sk, num_id_trabajo_sk)
+            VALUES (src.num_id_empleado, src.str_nombre_empleado, src.dtm_fecha_contratacion, src.id_departamento_sk, src.num_id_trabajo_sk);
     EXCEPTION
         WHEN NO_DATA_FOUND THEN
             DBMS_OUTPUT.PUT_LINE('Error: Departamento o Trabajo no encontrado.');

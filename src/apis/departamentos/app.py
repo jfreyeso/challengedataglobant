@@ -45,17 +45,17 @@ def lambda_handler(event, context):
         elif http_method == 'PUT':
             # PUT /departamentos/{id}
             if not department_id:
-                return format_response(400, {"error": "Department ID is required for update"})
+                return format_response(400, {"error": "El ID del Departmento es obligatorio para la actualización"})
             result = update_department(department_id, body)
             
         elif http_method == 'DELETE':
             # DELETE /departamentos/{id}
             if not department_id:
-                return format_response(400, {"error": "Department ID is required for deletion"})
+                return format_response(400, {"error": "El ID del Departmento es obligatorio para la eliminación"})
             result = delete_department(department_id)
             
         else:
-            return format_response(405, {"error": "Method not allowed"})
+            return format_response(405, {"error": "Metodo invalido"})
             
         # Formatear y devolver la respuesta
         return format_response(200, result)
