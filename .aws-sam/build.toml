@@ -9,4 +9,22 @@ manifest_hash = ""
 packagetype = "Zip"
 functions = ["DepartamentosFunction"]
 
+[function_build_definitions.b305a042-d266-4712-a0f7-e8d3da5c73cb]
+codeuri = "C:\\Users\\jfrey\\Documents\\ChallengeDataGlobant\\src\\apis\\trabajos"
+runtime = "python3.12"
+architecture = "x86_64"
+handler = "app.lambda_handler"
+manifest_hash = ""
+packagetype = "Zip"
+functions = ["trabajosFunction"]
+
+[function_build_definitions.9b608d7b-fe09-47f9-8c58-1236cbad9538]
+codeuri = "C:\\Users\\jfrey\\Documents\\ChallengeDataGlobant\\src\\apis\\empleadosContratados"
+runtime = "python3.12"
+architecture = "x86_64"
+handler = "app.lambda_handler"
+manifest_hash = ""
+packagetype = "Zip"
+functions = ["empleadosContratadosFunction"]
+
 [layer_build_definitions]

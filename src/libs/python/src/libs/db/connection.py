@@ -16,3 +16,19 @@ class DatabaseConnection:
             secret_data = get_secret(self.secret_arn)
             self.db_config = json.loads(secret_data)
         return self.db_config
+    
+    def connect(self):
+        """Método abstracto para establecer la conexión."""
+        raise NotImplementedError("Debe implementarse en las clases hijas")
+    
+    def disconnect(self):
+        """Método abstracto para cerrar la conexión."""
+        raise NotImplementedError("Debe implementarse en las clases hijas")
+    
+    def execute_query(self, query, params=None):
+        """Método abstracto para ejecutar consultas."""
+        raise NotImplementedError("Debe implementarse en las clases hijas")
+    
+    def execute_procedure(self, procedure_name, params=None):
+        """Método abstracto para ejecutar procedimientos almacenados."""
+        raise NotImplementedError("Debe implementarse en las clases hijas")

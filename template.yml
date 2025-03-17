@@ -14,7 +14,7 @@ Parameters:
   DBSecretArn:
     Type: String
     Description: ARN of the secret containing Oracle RDS credentials
-    Default: "arn:aws:secretsmanager:us-east-1:123456789012:secret:my-db-secret"
+    Default: "arn:aws:secretsmanager:us-east-2:204664655215:secret:oracle_DB_challenge-TbK7Ng"
 
 Globals:
   Function:
