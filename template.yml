@@ -105,6 +105,116 @@ Resources:
             Path: /departamentos/{id}
             Method: delete
 
+  # Lambda Function - Trabajos
+  trabajosFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: src/apis/trabajos
+      Handler: app.lambda_handler
+      Runtime: python3.12
+      Timeout: 30
+      MemorySize: 256
+      Layers:
+        - !Ref CommonLibrariesLayer
+      Environment:
+        Variables:
+          STAGE: !Ref Stage
+          DB_SECRET_ARN: !Ref DBSecretArn
+      Policies:
+        - AWSLambdaBasicExecutionRole
+        - Version: '2012-10-17'
+          Statement:
+            - Effect: Allow
+              Action:
+                - secretsmanager:GetSecretValue
+              Resource: !Ref DBSecretArn
+      Events:
+        GetDepartamentos:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: /trabajos
+            Method: get
+        GetDepartamento:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: /trabajos/{id}
+            Method: get
+        CreateDepartamento:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: /trabajos
+            Method: post
+        UpdateDepartamento:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: /trabajos/{id}
+            Method: put
+        DeleteDepartamento:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: /trabajos/{id}
+            Method: delete
+  
+  # Lambda Function - empleadosContratados
+  empleadosContratadosFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: src/apis/empleadosContratados
+      Handler: app.lambda_handler
+      Runtime: python3.12
+      Timeout: 30
+      MemorySize: 256
+      Layers:
+        - !Ref CommonLibrariesLayer
+      Environment:
+        Variables:
+          STAGE: !Ref Stage
+          DB_SECRET_ARN: !Ref DBSecretArn
+      Policies:
+        - AWSLambdaBasicExecutionRole
+        - Version: '2012-10-17'
+          Statement:
+            - Effect: Allow
+              Action:
+                - secretsmanager:GetSecretValue
+              Resource: !Ref DBSecretArn
+      Events:
+        GetDepartamentos:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: /empleadosContratados
+            Method: get
+        GetDepartamento:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: /empleadosContratados/{id}
+            Method: get
+        CreateDepartamento:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: /empleadosContratados
+            Method: post
+        UpdateDepartamento:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: /empleadosContratados/{id}
+            Method: put
+        DeleteDepartamento:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: /empleadosContratados/{id}
+            Method: delete            
+
 Outputs:
   ApiURL:
     Description: URL of the API Gateway
@@ -112,3 +222,10 @@ Outputs:
   DepartamentosFunction:
     Description: Departamentos Lambda Function ARN
     Value: !GetAtt DepartamentosFunction.Arn
+  trabajosFunction:
+    Description: trabajos Lambda Function ARN
+    Value: !GetAtt DepartamentosFunction.Arn
+  empleadosContratadosFunction:
+    Description: empleadosContratados Lambda Function ARN
+    Value: !GetAtt DepartamentosFunction.Arn
+    
