@@ -8,11 +8,11 @@ import json
 import traceback
 import logging
 from handlers import (
-    get_all_departments, 
-    get_department_by_id, 
-    create_department,
-    update_department,
-    delete_department
+    get_all_employees, 
+    get_employee_by_id, 
+    create_employee,
+    update_employee,
+    delete_employee
 )
 from src.libs.utils.response import format_response
 from src.libs.utils.auth import validate_token , extract_token_from_header
@@ -32,7 +32,7 @@ logging.getLogger().addHandler(console_handler)
 
 def lambda_handler(event, context):
     """
-    Punto de entrada para la función Lambda de departamentos.
+    Punto de entrada para la función Lambda de empleadosContratados.
     Enruta las solicitudes a los controladores adecuados según el método HTTP y la ruta.
     """
     try:
@@ -53,10 +53,10 @@ def lambda_handler(event, context):
         
         
         # Obtener el ID del departamento si existe
-        department_id = None
-        if '{id}' in path or '/departamentos/' in path and path != '/departamentos':
+        employee_id = None
+        if '{id}' in path or '/empleadosContratados/' in path and path != '/empleadosContratados':
             path_parts = path.split('/')
-            department_id = path_parts[-1]
+            employee_id = path_parts[-1]
             
             
         # Obtener el cuerpo de la solicitud si existe
@@ -67,30 +67,30 @@ def lambda_handler(event, context):
             
         # Enrutamiento basado en el método HTTP
         if http_method == 'GET':
-            if department_id:
-                logging.info(f"🔍 Fetching department with ID: {department_id}")
-                result = get_department_by_id(department_id)
+            if employee_id:
+                logging.info(f"🔍 Fetching employee with ID: {employee_id}")
+                result = get_employee_by_id(employee_id)
             else:
-                logging.info("📋 Fetching all departments")
-                result = get_all_departments()
+                logging.info("📋 Fetching all employees")
+                result = get_all_employees()
                 
         elif http_method == 'POST':
-            logging.info("🆕 Creating a new department")
-            result = create_department(body)
+            logging.info("🆕 Creating a new employee")
+            result = create_employee(body)
             
         elif http_method == 'PUT':
-            if not department_id:
+            if not employee_id:
                 logging.warning("⚠️ EL numero del Department es obligatorio para la actualización")
                 return format_response(400, {"error": "El ID del Departamento es obligatorio para la actualización"})
-            logging.info(f"♻️ Se actualizo el departamento numero: {department_id}")
-            result = update_department(body)
+            logging.info(f"♻️ Se actualizo el departamento numero: {employee_id}")
+            result = update_employee(body)
             
         elif http_method == 'DELETE':
-            if not department_id:
+            if not employee_id:
                 logging.warning("⚠️ Department ID is required for deletion")
                 return format_response(400, {"error": "El ID del Departamento es obligatorio para la eliminación"})
-            logging.info(f"🗑️ Deleting department with ID: {department_id}")
-            result = delete_department(department_id)
+            logging.info(f"🗑️ Deleting employee with ID: {employee_id}")
+            result = delete_employee(employee_id)
             
         else:
             logging.warning("🚫 Invalid HTTP method")

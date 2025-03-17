@@ -10,7 +10,7 @@ CREATE OR REPLACE PACKAGE pkg_fct_empleados_contratados AS
     PROCEDURE insert_empleado(
         p_id IN NUMBER,
         p_nombre IN VARCHAR2,
-        p_fecha_contratacion IN DATE,
+        p_fecha_contratacion IN VARCHAR2,
         p_id_departamento IN NUMBER,
         p_id_trabajo IN NUMBER
     );
@@ -30,19 +30,18 @@ CREATE OR REPLACE PACKAGE pkg_fct_empleados_contratados AS
     );
 END pkg_fct_empleados_contratados;
 /
-
 CREATE OR REPLACE PACKAGE BODY pkg_fct_empleados_contratados AS
     -- Procedimiento para insertar un empleado
     PROCEDURE insert_empleado(
         p_id IN NUMBER,
         p_nombre IN VARCHAR2,
-        p_fecha_contratacion IN DATE,
+        p_fecha_contratacion IN VARCHAR2,
         p_id_departamento IN NUMBER,
         p_id_trabajo IN NUMBER
     ) IS
     BEGIN
         INSERT INTO fct_empleados_contratados (num_id_empleado, str_nombre_empleado, dtm_fecha_contratacion, str_status, id_departamento_sk, num_id_trabajo_sk)
-        VALUES (p_id, p_nombre, p_fecha_contratacion, 'activo', p_id_departamento, p_id_trabajo);
+        VALUES (p_id, p_nombre, to_date(p_fecha_contratacion,'dd-mm-yyyy'), 'activo', p_id_departamento, p_id_trabajo);
     EXCEPTION
         WHEN NO_DATA_FOUND THEN
             DBMS_OUTPUT.PUT_LINE('Error: Departamento o Trabajo no encontrado.');

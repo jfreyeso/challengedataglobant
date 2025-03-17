@@ -5,7 +5,7 @@ sys.path.append(os.path.join(os.path.dirname(__file__), "..", "..", "libs"))
 
 from src.libs.db.oracle_client import OracleConnection
 
-def get_all_departments():
+def get_all_employees():
     """
     Obtiene todos los departamentos.
     
@@ -15,111 +15,110 @@ def get_all_departments():
     db = OracleConnection()
     try:
         #se obtienen todos los departamentos
-        query = "SELECT * FROM dim_departamentos"
-        departments = db.execute_query(query)
+        query = "SELECT * FROM fct_empleados_contratados"
+        employees = db.execute_query(query)
         
-        return {"departments": departments}
+        return {"employees": employees}
     finally:
         db.disconnect()
 
-def get_department_by_id(num_departamento):
+def get_employee_by_id(num_id_empleado):
     """
-    Obtiene un departamento por su ID.
+    Obtiene un empleado por su ID.
     
     Args:
-        num_departamento (str): ID del departamento
+        num_id_empleado (num): ID del empleado
         
     Returns:
-        dict: Datos del departamento
+        dict: Datos del empleado
     """
     db = OracleConnection()
     try:
         # Opción 1: Ejecutar una consulta SQL directa
-        query = "SELECT * FROM dim_departamentos WHERE num_departamento = :id"
-        params = {"id": num_departamento}
-        departments = db.execute_query(query, params)
+        query = "SELECT * FROM fct_empleados_contratados WHERE id_emp_contatado_sk = :id"
+        params = {"id": num_id_empleado}
+        employees = db.execute_query(query, params)
         
-        if not departments:
-            return {"error": "No existe el departamento consultado", "status_code": 404}
-            
-        # Opción 2: Ejecutar un procedimiento almacenado
-        # result = db.execute_procedure(
-        #     "pkg_departments.get_department_by_id",
-        #     {"p_num_departamento": num_departamento}
-        # )
+        if not employees:
+            return {"error": "No existe el empleado consultado", "status_code": 404}
         
-        return {"department": departments[0]}
+        return {"EmpleadoContratado": employees[0]}
     finally:
         db.disconnect()
 
-def create_department(dic_departamento):
+def create_employee(dic_empleado):
     """
-    Crea un nuevo departamento.
+    Crea un nuevo empleado.
     
     Args:
-        dic_departamento (dict): Datos del departamento a crear
+        dic_empleado (dict): Datos del empleado a crear
         
     Returns:
         dict: Resultado de la operación
     """
-    if not dic_departamento:
-        return {"error": "Datos del departamento son obligatorios", "status_code": 400}
+    if not dic_empleado:
+        return {"error": "Datos del empleado son obligatorios", "status_code": 400}
         
-    required_fields = ["num_departamento", "str_nombre_departamento"]
+    required_fields = ["num_id_empleado", "str_nombre_empleado","dtm_fecha_contratacion","id_departamento_sk","num_id_trabajo_sk"]
     for field in required_fields:
-        if field not in dic_departamento:
+        if field not in dic_empleado:
             return {"error": f"El campo '{field}' es obligatorio", "status_code": 400}
     
     db = OracleConnection()
     try:
         result = db.execute_procedure(
-            "pkg_dim_departamentos.insert_departamento",
+            "pkg_fct_empleados_contratados.insert_empleado",
             {
-                "p_num_departamento": dic_departamento["num_departamento"],
-                "p_nombre_departamento": dic_departamento["str_nombre_departamento"]
+                "num_id_empleado":dic_empleado["num_id_empleado"],
+                "str_nombre_empleado": dic_empleado["str_nombre_empleado"],
+                "dtm_fecha_contratacion": dic_empleado["dtm_fecha_contratacion"],
+                "id_departamento_sk": dic_empleado["id_departamento_sk"],
+                "num_id_trabajo_sk": dic_empleado["num_id_trabajo_sk"]
             }
         )
         
         if not result["success"]:
             return {"error": result["error"], "status_code": 400}
             
-        return {"message": "Departmento creado", "num_departamento": dic_departamento["num_departamento"]}
+        return {"message": "Empleado creado", "num_id_empleado": dic_empleado["num_id_empleado"]}
     finally:
         db.disconnect()
 
-def update_department(dic_departamento):
+def update_employee(dic_empleado):
     """
-    Actualiza un departamento existente.
+    Actualiza un empleado existente.
     
     Args:
-        dic_departamento (dict): Datos del departamento a actualizar
+        dic_empleado (dict): Datos del empleado a actualizar
         
     Returns:
         dict: Resultado de la operación
     """
-    if not dic_departamento:
-        return {"error": "Datos del departamento son obligatorios", "status_code": 400}
+    if not dic_empleado:
+        return {"error": "Datos del empleado son obligatorios", "status_code": 400}
     
-    required_fields = ["id_departamento_sk","num_departamento", "str_nombre_departamento"]
+    required_fields = ["num_id_empleado", "str_nombre_empleado","dtm_fecha_contratacion","id_departamento_sk","num_id_trabajo_sk"]
     for field in required_fields:
-        if field not in dic_departamento:
+        if field not in dic_empleado:
             return {"error": f"El campo '{field}' es obligatorio", "status_code": 400}
     
     db = OracleConnection()
     try:
-        # Verificar si el departamento existe
-        check_query = "SELECT 1 FROM dim_departamentos WHERE num_departamento = :id"
-        exists = db.execute_query(check_query, {"id": dic_departamento["id_departamento_sk"]})
+        # Verificar si el empleado existe
+        check_query = "SELECT 1 FROM fct_empleados_contratados WHERE num_id_empleado = :id"
+        exists = db.execute_query(check_query, {"id": dic_empleado["num_id_empleado"]})
         
         if not exists:
-            return {"error": "El departamento a actualizar no existe", "status_code": 404}
+            return {"error": "El empleado a actualizar no existe", "status_code": 404}
         
         result = db.execute_procedure(
-            "pkg_dim_departamentos.update_departamento",
+            "pkg_fct_empleados_contratados.merge_empleado",
             {
-                "p_departamento_id": dic_departamento["id_departamento_sk"],
-                "p_num_departamento": dic_departamento["num_departamento"],
-                "p_nombre_departamento": dic_departamento["str_nombre_departamento"]
+                "num_id_empleado":dic_empleado["num_id_empleado"],
+                "str_nombre_empleado": dic_empleado["str_nombre_empleado"],
+                "dtm_fecha_contratacion": dic_empleado["dtm_fecha_contratacion"],
+                "id_departamento_sk": dic_empleado["id_departamento_sk"],
+                "num_id_trabajo_sk": dic_empleado["num_id_trabajo_sk"]
             }
         )
         
@@ -127,41 +126,37 @@ def update_department(dic_departamento):
         if not result["success"]:
             return {"error": result["error"], "status_code": 400}
         
-
-        
-        return {"message": "Department updated successfully"}
+        return {"message": "Empleado actualizado exitosamente"}
     finally:
         db.disconnect()
 
-def delete_department(num_departamento):
+def delete_employee(num_id_empleado):
     """
-    Elimina un departamento.
+    Elimina un empleado.
     
     Args:
-        num_departamento (str): ID del departamento a eliminar
+        num_id_empleado (str): ID del empleado a eliminar
         
     Returns:
         dict: Resultado de la operación
     """
     db = OracleConnection()
     try:
-        # Verificar si el departamento existe
-        check_query = "SELECT 1 FROM departments WHERE num_departamento = :id"
-        exists = db.execute_query(check_query, {"id": num_departamento})
+        # Verificar si el empleado existe
+        check_query = "SELECT 1 FROM fct_empleados_contratados WHERE num_id_empleado = :id"
+        exists = db.execute_query(check_query, {"id": num_id_empleado})
         
         if not exists:
-            return {"error": "Department not found", "status_code": 404}
+            return {"error": "Empleado no encontrado", "status_code": 404}
         
-        # Opción 1: Ejecutar una consulta SQL directa
-        query = "DELETE FROM departments WHERE num_departamento = :id"
-        db.execute_query(query, {"id": num_departamento})
+        # Ejecutar un procedimiento almacenado
+        result = db.execute_procedure(
+             "pkg_fct_empleados_contratados.delete_empleado",
+             {"p_num_id_empleado": num_id_empleado}
+         )
+        if not result["success"]:
+            return {"error": result["error"], "status_code": 400}
         
-        # Opción 2: Ejecutar un procedimiento almacenado
-        # result = db.execute_procedure(
-        #     "pkg_departments.delete_department",
-        #     {"p_num_departamento": num_departamento}
-        # )
-        
-        return {"message": "Department deleted successfully"}
+        return {"message": "Empleado eliminado exitosamente"}
     finally:
         db.disconnect()
