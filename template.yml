@@ -1,6 +1,6 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
-Description: API Project for Departments, Jobs and Employees
+Description: API Project for departamentos, empleadosContratados and trabajos
 
 Parameters:
   Stage:
@@ -14,6 +14,7 @@ Parameters:
   DBSecretArn:
     Type: String
     Description: ARN of the secret containing Oracle RDS credentials
+    Default: "arn:aws:secretsmanager:us-east-1:123456789012:secret:my-db-secret"
 
 Globals:
   Function:
@@ -24,6 +25,8 @@ Globals:
       Variables:
         STAGE: !Ref Stage
         DB_SECRET_ARN: !Ref DBSecretArn
+    Layers:
+      - !Ref CommonLibrariesLayer  # Capa compartida con librerías comunes
 
 Resources:
   # API Gateway
@@ -36,58 +39,32 @@ Resources:
         AllowHeaders: "'Content-Type,Authorization'"
         AllowOrigin: "'*'"
 
-  # Departments Lambda Function
-  DepartmentsFunction:
-    Type: AWS::Serverless::Function
+  # Capa con librerías comunes (incluyendo Oracle Instant Client)
+  CommonLibrariesLayer:
+    Type: AWS::Serverless::LayerVersion
     Properties:
-      CodeUri: src/apis/departments/
-      Handler: app.lambda_handler
-      Policies:
-        - AWSLambdaBasicExecutionRole
-        - Version: '2012-10-17'
-          Statement:
-            - Effect: Allow
-              Action:
-                - secretsmanager:GetSecretValue
-              Resource: !Ref DBSecretArn
-      Events:
-        GetDepartments:
-          Type: Api
-          Properties:
-            RestApiId: !Ref ApiGateway
-            Path: /departments
-            Method: get
-        GetDepartment:
-          Type: Api
-          Properties:
-            RestApiId: !Ref ApiGateway
-            Path: /departments/{id}
-            Method: get
-        CreateDepartment:
-          Type: Api
-          Properties:
-            RestApiId: !Ref ApiGateway
-            Path: /departments
-            Method: post
-        UpdateDepartment:
-          Type: Api
-          Properties:
-            RestApiId: !Ref ApiGateway
-            Path: /departments/{id}
-            Method: put
-        DeleteDepartment:
-          Type: Api
-          Properties:
-            RestApiId: !Ref ApiGateway
-            Path: /departments/{id}
-            Method: delete
+      LayerName: "CommonLibraries"
+      Description: "Librerías compartidas para todas las funciones Lambda, incluyendo Oracle Instant Client"
+      ContentUri: src/libs/  # Asegúrate de que esta ruta incluya el Oracle Instant Client
+      CompatibleRuntimes:
+        - python3.12
+      RetentionPolicy: Delete
 
-  # Jobs Lambda Function
-  JobsFunction:
+  # Lambda Function - Departamentos
+  DepartamentosFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: src/apis/jobs/
+      CodeUri: src/apis/departamentos
       Handler: app.lambda_handler
+      Runtime: python3.12
+      Timeout: 30
+      MemorySize: 256
+      Layers:
+        - !Ref CommonLibrariesLayer
+      Environment:
+        Variables:
+          STAGE: !Ref Stage
+          DB_SECRET_ARN: !Ref DBSecretArn
       Policies:
         - AWSLambdaBasicExecutionRole
         - Version: '2012-10-17'
@@ -97,93 +74,41 @@ Resources:
                 - secretsmanager:GetSecretValue
               Resource: !Ref DBSecretArn
       Events:
-        GetJobs:
+        GetDepartamentos:
           Type: Api
           Properties:
             RestApiId: !Ref ApiGateway
-            Path: /jobs
+            Path: /departamentos
             Method: get
-        GetJob:
+        GetDepartamento:
           Type: Api
           Properties:
             RestApiId: !Ref ApiGateway
-            Path: /jobs/{id}
+            Path: /departamentos/{id}
             Method: get
-        CreateJob:
+        CreateDepartamento:
           Type: Api
           Properties:
             RestApiId: !Ref ApiGateway
-            Path: /jobs
+            Path: /departamentos
             Method: post
-        UpdateJob:
+        UpdateDepartamento:
           Type: Api
           Properties:
             RestApiId: !Ref ApiGateway
-            Path: /jobs/{id}
+            Path: /departamentos/{id}
             Method: put
-        DeleteJob:
+        DeleteDepartamento:
           Type: Api
           Properties:
             RestApiId: !Ref ApiGateway
-            Path: /jobs/{id}
-            Method: delete
-
-  # Employees Lambda Function
-  EmployeesFunction:
-    Type: AWS::Serverless::Function
-    Properties:
-      CodeUri: src/apis/employees/
-      Handler: app.lambda_handler
-      Policies:
-        - AWSLambdaBasicExecutionRole
-        - Version: '2012-10-17'
-          Statement:
-            - Effect: Allow
-              Action:
-                - secretsmanager:GetSecretValue
-              Resource: !Ref DBSecretArn
-      Events:
-        GetEmployees:
-          Type: Api
-          Properties:
-            RestApiId: !Ref ApiGateway
-            Path: /employees
-            Method: get
-        GetEmployee:
-          Type: Api
-          Properties:
-            RestApiId: !Ref ApiGateway
-            Path: /employees/{id}
-            Method: get
-        CreateEmployee:
-          Type: Api
-          Properties:
-            RestApiId: !Ref ApiGateway
-            Path: /employees
-            Method: post
-        UpdateEmployee:
-          Type: Api
-          Properties:
-            RestApiId: !Ref ApiGateway
-            Path: /employees/{id}
-            Method: put
-        DeleteEmployee:
-          Type: Api
-          Properties:
-            RestApiId: !Ref ApiGateway
-            Path: /employees/{id}
+            Path: /departamentos/{id}
             Method: delete
 
 Outputs:
   ApiURL:
     Description: URL of the API Gateway
     Value: !Sub https://${ApiGateway}.execute-api.${AWS::Region}.amazonaws.com/${Stage}/
-  DepartmentsFunction:
-    Description: Departments Lambda Function ARN
-    Value: !GetAtt DepartmentsFunction.Arn
-  JobsFunction:
-    Description: Jobs Lambda Function ARN
-    Value: !GetAtt JobsFunction.Arn
-  EmployeesFunction:
-    Description: Employees Lambda Function ARN
-    Value: !GetAtt EmployeesFunction.Arn
+  DepartamentosFunction:
+    Description: Departamentos Lambda Function ARN
+    Value: !GetAtt DepartamentosFunction.Arn

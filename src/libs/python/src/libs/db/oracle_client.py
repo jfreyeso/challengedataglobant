@@ -1,5 +1,9 @@
-import cx_Oracle
+import os
+import oracledb
 from .connection import DatabaseConnection
+
+# Definir variables de entorno necesarias
+os.environ["NLS_LANG"] = "AMERICAN_AMERICA.AL32UTF8"
 
 class OracleConnection(DatabaseConnection):
     """Clase específica para conexiones a Oracle."""
@@ -10,18 +14,19 @@ class OracleConnection(DatabaseConnection):
             config = self.get_connection_params()
             
             # Configuración de la conexión
-            dsn = cx_Oracle.makedsn(
-                config['host'],
-                config['port'],
-                service_name=config.get('service_name', '')
-            )
+            host = config['host']
+            port = config['port']
+            service_name = config.get('service_name', config.get('dbname', ''))
             
-            self.connection = cx_Oracle.connect(
+            dsn = f"(DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST={host})(PORT={port}))(CONNECT_DATA=(SERVICE_NAME={service_name})))"
+            print(f"dsn: {dsn}")
+            
+            self.connection = oracledb.connect(
                 user=config['username'],
                 password=config['password'],
                 dsn=dsn
             )
-            
+            print("coenctado a la db")
         return self.connection
     
     def disconnect(self):
@@ -90,7 +95,7 @@ class OracleConnection(DatabaseConnection):
             conn.commit()
             return {"success": True}
             
-        except cx_Oracle.DatabaseError as e:
+        except oracledb.DatabaseError as e:
             conn.rollback()
             error, = e.args
             return {"success": False, "error": error.message}
