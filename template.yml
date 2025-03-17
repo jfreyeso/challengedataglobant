@@ -1,0 +1,114 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: API Project for departamentos, empleadosContratados and trabajos
+
+Parameters:
+  Stage:
+    Type: String
+    Default: dev
+    AllowedValues:
+      - dev
+      - test
+      - prod
+
+  DBSecretArn:
+    Type: String
+    Description: ARN of the secret containing Oracle RDS credentials
+    Default: "arn:aws:secretsmanager:us-east-1:123456789012:secret:my-db-secret"
+
+Globals:
+  Function:
+    Timeout: 30
+    Runtime: python3.12
+    MemorySize: 256
+    Environment:
+      Variables:
+        STAGE: !Ref Stage
+        DB_SECRET_ARN: !Ref DBSecretArn
+    Layers:
+      - !Ref CommonLibrariesLayer  # Capa compartida con librerías comunes
+
+Resources:
+  # API Gateway
+  ApiGateway:
+    Type: AWS::Serverless::Api
+    Properties:
+      StageName: !Ref Stage
+      Cors:
+        AllowMethods: "'GET,POST,PUT,DELETE,OPTIONS'"
+        AllowHeaders: "'Content-Type,Authorization'"
+        AllowOrigin: "'*'"
+
+  # Capa con librerías comunes (incluyendo Oracle Instant Client)
+  CommonLibrariesLayer:
+    Type: AWS::Serverless::LayerVersion
+    Properties:
+      LayerName: "CommonLibraries"
+      Description: "Librerías compartidas para todas las funciones Lambda, incluyendo Oracle Instant Client"
+      ContentUri: src/libs/  # Asegúrate de que esta ruta incluya el Oracle Instant Client
+      CompatibleRuntimes:
+        - python3.12
+      RetentionPolicy: Delete
+
+  # Lambda Function - Departamentos
+  DepartamentosFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: src/apis/departamentos
+      Handler: app.lambda_handler
+      Runtime: python3.12
+      Timeout: 30
+      MemorySize: 256
+      Layers:
+        - !Ref CommonLibrariesLayer
+      Environment:
+        Variables:
+          STAGE: !Ref Stage
+          DB_SECRET_ARN: !Ref DBSecretArn
+      Policies:
+        - AWSLambdaBasicExecutionRole
+        - Version: '2012-10-17'
+          Statement:
+            - Effect: Allow
+              Action:
+                - secretsmanager:GetSecretValue
+              Resource: !Ref DBSecretArn
+      Events:
+        GetDepartamentos:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: /departamentos
+            Method: get
+        GetDepartamento:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: /departamentos/{id}
+            Method: get
+        CreateDepartamento:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: /departamentos
+            Method: post
+        UpdateDepartamento:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: /departamentos/{id}
+            Method: put
+        DeleteDepartamento:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: /departamentos/{id}
+            Method: delete
+
+Outputs:
+  ApiURL:
+    Description: URL of the API Gateway
+    Value: !Sub https://${ApiGateway}.execute-api.${AWS::Region}.amazonaws.com/${Stage}/
+  DepartamentosFunction:
+    Description: Departamentos Lambda Function ARN
+    Value: !GetAtt DepartamentosFunction.Arn

@@ -1,0 +1,4 @@
+pyjwt
+boto3==1.37.13
+oracledb==3.0.0
+python-json-logger==2.0.7

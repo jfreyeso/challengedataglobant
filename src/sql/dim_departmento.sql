@@ -5,8 +5,8 @@
 --------------------------------------------------------------------------------
 -- 2025-03-15          Juan Felipe      Creación de la tabla de departamentos
 */
-create table dim_departamentos (
-    id_departamento_sk serial primary key,
-    num_departamento int not null,
-    str_nombre_departamento varchar(50) not null
+CREATE TABLE dim_departamentos (
+    id_departamento_sk NUMBER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    num_departamento NUMBER NOT NULL,
+    str_nombre_departamento VARCHAR2(50) NOT NULL
 );
