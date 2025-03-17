@@ -14,7 +14,9 @@ def get_secret(secret_arn):
     Raises:
         Exception: Si ocurre un error al obtener el secreto
     """
-    client = boto3.client('secretsmanager')
+    session = boto3.Session(region_name="us-east-2")
+    client = session.client('secretsmanager')
+    print(f"secret_arn: {secret_arn}")
     
     try:
         response = client.get_secret_value(SecretId=secret_arn)
